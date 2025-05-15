@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Image Compressor & Converter - Tools Wonder</title>
+  <title>Image Compressor - Tools Wonder</title>
   <style>
     body {
       margin: 0;
@@ -19,10 +19,11 @@
     h1 {
       color: #007BFF;
       text-align: center;
+      margin-bottom: 20px;
     }
 
     .container {
-      background: #ffffff;
+      background: #fff;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       max-width: 500px;
@@ -36,7 +37,7 @@
       gap: 15px;
     }
 
-    input[type="file"], select, input[type="range"], button {
+    input[type="file"], input[type="range"], button {
       padding: 10px;
       font-size: 16px;
       border-radius: 8px;
@@ -63,6 +64,7 @@
 
     .preview {
       text-align: center;
+      margin-top: 15px;
     }
 
     .quality-label {
@@ -81,18 +83,12 @@
 </head>
 <body>
 
-  <h1>Image Compressor & Converter Tool</h1>
+  <h1>Image Compressor Tool</h1>
 
   <div class="container">
     <div class="upload-section">
       <input type="file" id="imageInput" accept="image/*" />
       
-      <select id="formatSelect">
-        <option value="image/jpeg">Convert to JPG</option>
-        <option value="image/png">Convert to PNG</option>
-        <option value="image/webp">Convert to WEBP</option>
-      </select>
-
       <div class="quality-label">
         <label>Compression Quality</label>
         <span id="qualityValue">80%</span>
@@ -136,7 +132,6 @@
         return;
       }
 
-      const format = document.getElementById('formatSelect').value;
       const quality = qualityRange.value / 100;
       const img = document.getElementById('previewImg');
 
@@ -145,18 +140,17 @@
 
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
-
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `compressed-image.${format.split('/')[1]}`;
+        a.download = 'compressed-image.jpg';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-      }, format, quality);
+      }, 'image/jpeg', quality);
     }
   </script>
 
