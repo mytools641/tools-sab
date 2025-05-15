@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Compressor & Converter - Tools Wonder</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0faff;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #007BFF;
+      text-align: center;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .upload-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="file"], select, input[type="range"], button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #007BFF;
+      width: 100%;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+
+    .preview {
+      text-align: center;
+    }
+
+    .quality-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #333;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Image Compressor & Converter Tool</h1>
+
+  <div class="container">
+    <div class="upload-section">
+      <input type="file" id="imageInput" accept="image/*" />
+      
+      <select id="formatSelect">
+        <option value="image/jpeg">Convert to JPG</option>
+        <option value="image/png">Convert to PNG</option>
+        <option value="image/webp">Convert to WEBP</option>
+      </select>
+
+      <div class="quality-label">
+        <label>Compression Quality</label>
+        <span id="qualityValue">80%</span>
+      </div>
+      <input type="range" id="qualityRange" min="10" max="100" value="80" />
+
+      <button onclick="compressAndDownload()">Compress & Download</button>
+    </div>
+
+    <div class="preview" id="preview">
+      <p>No image selected</p>
+    </div>
+  </div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const qualityRange = document.getElementById('qualityRange');
+    const qualityValue = document.getElementById('qualityValue');
+    let originalImage = null;
+
+    qualityRange.addEventListener('input', () => {
+      qualityValue.textContent = qualityRange.value + '%';
+    });
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          originalImage = e.target.result;
+          preview.innerHTML = `<img src="${originalImage}" id="previewImg" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function compressAndDownload() {
+      if (!originalImage) {
+        alert("Please upload an image first.");
+        return;
+      }
+
+      const format = document.getElementById('formatSelect').value;
+      const quality = qualityRange.value / 100;
+      const img = document.getElementById('previewImg');
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `compressed-image.${format.split('/')[1]}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, format, quality);
+    }
+  </script>
+
+</body>
+</html>
