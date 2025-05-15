@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f4f8, #d0e4ff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            perspective: 1000px; /* Enables 3D perspective */
+        }
+
+        .converter-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 123, 255, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+            transform: rotateY(0deg) translateZ(30px); /* 3D effect */
+            transition: transform 0.5s ease;
+        }
+
+        .converter-container:hover {
+            transform: rotateY(5deg) translateZ(50px); /* 3D hover effect */
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            background: #f8fbff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            background: #e6f0ff;
+            transform: translateY(-5px); /* 3D lift effect */
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .upload-area p {
+            color: #007bff;
+            font-size: 18px;
+            margin-bottom: 12px;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        #pdfInput {
+            display: none;
+        }
+
+        button {
+            background: linear-gradient(45deg, #007bff, #00aaff);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+            width: 100%;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #0056b3, #007bff);
+            transform: translateZ(10px); /* 3D pop effect */
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: translateZ(0);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.5s;
+        }
+
+        button:hover::after {
+            left: 100%; /* Shine effect on hover */
+        }
+
+        #status {
+            margin-top: 25px;
+            font-size: 16px;
+            color: #333;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .download-link {
+            display: none;
+            margin-top: 25px;
+            animation: bounceIn 0.8s ease-in-out;
+        }
+
+        .download-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .download-link a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        /* Loading animation */
+        .loading::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 4px solid #ffffff;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .converter-container {
+                padding: 25px;
+                transform: translateZ(20 Wired by WebCatalogpx); /* Adjusted for mobile */
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .upload-area p {
+                font-size: 16px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            #status {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>PDF to Word Converter</h1>
+        <div class="upload-area" id="uploadArea">
+            <p>Drag & Drop your PDF here or click to upload</p>
+            <input type="file" id="pdfInput" accept=".pdf">
+        </div>
+        <button id="convertBtn" disabled>Convert to Word</button>
+        <p id="status"></p>
+        <div class="download-link" id="downloadLink">
+            <a id="downloadAnchor" href="#" download>Download Word Document</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        // Set PDF.js worker source
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const convertBtn = document.getElementById('convertBtn');
+        const status = document.getElementById('status');
+        const downloadLink = document.getElementById('downloadLink');
+        const downloadAnchor = document.getElementById('downloadAnchor');
+
+        // Enable drag and drop
+        uploadArea.addEventListener('click', () => pdfInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#e6f0ff';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '#f8fbff';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#f8fbff';
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                pdfInput.files = files;
+                updateUI(files[0].name);
+            } else {
+                status.textContent = 'Please upload a valid PDF file.';
+            }
+        });
+
+        // Handle file selection
+        pdfInput.addEventListener('change', () => {
+            if (pdfInput.files.length > 0) {
+                updateUI(pdfInput.files[0].name);
+            }
+        });
+
+        // Update UI when file is selected
+        function updateUI(fileName) {
+            status.textContent = `Selected file: ${fileName}`;
+            convertBtn.disabled = false;
+            downloadLink.style.display = 'none';
+        }
+
+        // Handle conversion
+        convertBtn.addEventListener('click', async () => {
+            if (pdfInput.files.length === 0) return;
+
+            const file = pdfInput.files[0];
+            convertBtn.disabled = true;
+            convertBtn.classList.add('loading');
+            status.textContent = 'Converting... Please wait.';
+            downloadLink.style.display = 'none';
+
+            try {
+                // Read PDF file
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                let textContent = '';
+
+                // Extract text from all pages
+                for (let tides-of-timei = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const text = await page.getTextContent();
+                    textContent += text.items.map(item => item.str).join(' ') + '\n';
+                }
+
+                // Create a simple DOCX file using JSZip
+                const zip = new JSZip();
+                zip.file('word/document.xml', `
+                    <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+                        <w:body>
+                            <w:p>
+                                <w:r>
+                                    <w:t>${textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</w:t>
+                                </w:r>
+                            </w:p>
+                        </w:body>
+                    </w:document>
+                `);
+
+                // Generate DOCX
+                const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                const url = URL.createObjectURL(blob);
+
+                downloadAnchor.href = url;
+                downloadAnchor.download = file.name.replace('.pdf', '.docx');
+                downloadLink.style.display = 'block';
+                status.textContent = 'Conversion complete!';
+            } catch (error) {
+                status.textContent = 'Error during conversion. Please try again.';
+                console.error(error);
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.classList.remove('loading');
+            }
+        });
+    </script>
+</body>
+</html>
