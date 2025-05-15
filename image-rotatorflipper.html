@@ -1,209 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Rotator/Flipper Tool</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #00b4ff, #ffffff);
-      margin: 0;
-      padding: 20px;
-      color: #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rotator/Flipper & Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-    .container {
-      max-width: 500px;
-      width: 100%;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0, 180, 255, 0.3);
-      animation: fadeIn 1s ease-in-out;
-    }
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    h2 {
-      color: #007bff;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
 
-    input[type="file"], select, button {
-      width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+        .upload-section, .controls, .preview-section, .text-section {
+            margin-bottom: 20px;
+        }
 
-    input[type="file"] {
-      background: #e3f2fd;
-    }
+        .upload-section {
+            text-align: center;
+        }
 
-    select {
-      background: #f1f1f1;
-    }
+        #imageInput {
+            display: none;
+        }
 
-    .preview {
-      width: 100%;
-      margin-top: 20px;
-      text-align: center;
-    }
+        .upload-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-    .preview canvas {
-      max-width: 100%;
-      border-radius: 12px;
-      border: 2px dashed #007bff;
-      animation: popIn 0.5s ease-in-out;
-    }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
 
-    @keyframes popIn {
-      0% { transform: scale(0.9); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
-      justify-content: center;
-    }
+        .control-btn, .convert-btn, .download-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
 
-    .actions button {
-      flex: 1 1 45%;
-      background-color: #007bff;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
+        .control-btn:hover, .convert-btn:hover, .download-btn:hover {
+            background-color: #0056b3;
+        }
 
-    .actions button:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);
-    }
+        .format-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #007bff;
+            font-size: 14px;
+        }
 
-    button.download-btn {
-      background: linear-gradient(to right, #00b4ff, #007bff);
-      color: white;
-      font-weight: bold;
-      margin-top: 20px;
-      transition: background 0.3s ease;
-    }
+        .preview-section {
+            text-align: center;
+        }
 
-    button.download-btn:hover {
-      background: linear-gradient(to left, #00b4ff, #007bff);
-    }
+        #previewImage {
+            max-width: 100%;
+            max-height: 400px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            display: none;
+        }
 
-    @media (max-width: 600px) {
-      .container {
-        padding: 15px;
-      }
+        .text-section {
+            display: none;
+        }
 
-      .actions button {
-        flex: 1 1 100%;
-      }
-    }
-  </style>
+        #extractedText {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .download-section {
+            text-align: center;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            color: #007bff;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn, .convert-btn, .download-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .format-select {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Image Rotator/Flipper Tool</h2>
-    <input type="file" id="imageInput" accept="image/*" />
-    <div class="preview">
-      <canvas id="canvas"></canvas>
+    <div class="container">
+        <h1>Image Rotator/Flipper & Converter</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="imageInput" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Upload Image</button>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="rotateImage(90)">Rotate 90°</button>
+            <button class="control-btn" onclick="rotateImage(-90)">Rotate -90°</button>
+            <button class="control-btn" onclick="flipImage('horizontal')">Flip Horizontal</button>
+            <button class="control-btn" onclick="flipImage('vertical')">Flip Vertical</button>
+            <button class="control-btn" onclick="extractText()">Extract Text</button>
+            <select class="format-select" id="formatSelect">
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+            </select>
+            <button class="convert-btn" onclick="convertImage()">Convert & Compress</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="preview-section">
+            <img id="previewImage" alt="Image Preview">
+        </div>
+
+        <div class="text-section" id="textSection">
+            <h3>Extracted Text:</h3>
+            <textarea id="extractedText" readonly></textarea>
+        </div>
+
+        <div class="download-section">
+            <button class="download-btn" id="downloadBtn" style="display: none;" onclick="downloadImage()">Download Image</button>
+        </div>
     </div>
 
-    <div class="actions">
-      <button onclick="rotateImage(90)">Rotate Right</button>
-      <button onclick="rotateImage(-90)">Rotate Left</button>
-      <button onclick="flipImage('horizontal')">Flip Horizontal</button>
-      <button onclick="flipImage('vertical')">Flip Vertical</button>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js"></script>
+    <script>
+        let originalImage = null;
+        let modifiedImage = null;
+        let rotation = 0;
+        let flipH = 1;
+        let flipV = 1;
 
-    <label for="format">Choose Format:</label>
-    <select id="format">
-      <option value="image/jpeg">JPG</option>
-      <option value="image/png">PNG</option>
-      <option value="image/webp">WebP</option>
-    </select>
+        document.getElementById('imageInput').addEventListener('change', handleImageUpload);
 
-    <button class="download-btn" onclick="downloadImage()">Download Compressed Image</button>
-  </div>
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-  <script>
-    let canvas = document.getElementById('canvas');
-    let ctx = canvas.getContext('2d');
-    let image = new Image();
-    let currentDataUrl = null;
-    let angle = 0;
-    let scaleX = 1;
-    let scaleY = 1;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    modifiedImage = img;
+                    rotation = 0;
+                    flipH = 1;
+                    flipV = 1;
+                    updatePreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
 
-    document.getElementById('imageInput').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file || !file.type.startsWith('image/')) {
-        alert('Please upload a valid image.');
-        return;
-      }
+        function updatePreview() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = originalImage;
 
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        image.onload = () => drawImage();
-        image.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+            canvas.width = img.width;
+            canvas.height = img.height;
 
-    function drawImage() {
-      const width = image.width;
-      const height = image.height;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.scale(flipH, flipV);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
-      canvas.width = width;
-      canvas.height = height;
-      ctx.clearRect(0, 0, width, height);
+            const preview = document.getElementById('previewImage');
+            preview.src = canvas.toDataURL();
+            preview.style.display = 'block';
+            modifiedImage = canvas;
+        }
 
-      ctx.save();
-      ctx.translate(width / 2, height / 2);
-      ctx.rotate((angle * Math.PI) / 180);
-      ctx.scale(scaleX, scaleY);
-      ctx.drawImage(image, -width / 2, -height / 2);
-      ctx.restore();
+        function rotateImage(degrees) {
+            if (!originalImage) return;
+            rotation = (rotation + degrees) % 360;
+            updatePreview();
+        }
 
-      currentDataUrl = canvas.toDataURL();
-    }
+        function flipImage(direction) {
+            if (!originalImage) return;
+            if (direction === 'horizontal') flipH *= -1;
+            if (direction === 'vertical') flipV *= -1;
+            updatePreview();
+        }
 
-    function rotateImage(deg) {
-      angle = (angle + deg) % 360;
-      drawImage();
-    }
+        async function extractText() {
+            if (!modifiedImage) {
+                setStatus('Please upload an image first.');
+                return;
+            }
 
-    function flipImage(direction) {
-      if (direction === 'horizontal') {
-        scaleX *= -1;
-      } else {
-        scaleY *= -1;
-      }
-      drawImage();
-    }
+            setStatus('Extracting text...');
+            const { data: { text } } = await Tesseract.recognize(modifiedImage.toDataURL(), 'eng');
+            const textArea = document.getElementById('extractedText');
+            textArea.value = text || 'No text found.';
+            document.getElementById('textSection').style.display = 'block';
+            setStatus('Text extracted successfully.');
+        }
 
-    function downloadImage() {
-      const format = document.getElementById('format').value;
-      const quality = 0.7;
-      const link = document.createElement('a');
-      link.download = 'converted_image.' + format.split('/')[1];
-      link.href = canvas.toDataURL(format, quality);
-      link.click();
-    }
+        function convertImage() {
+            if (!modifiedImage) {
+                setStatus('Please upload an image first.');
+                return;
+            }
+
+            setStatus('Converting and compressing...');
+            const format = document.getElementById('formatSelect').value;
+            const quality = format === 'jpeg' ? 0.8 : format === 'webp' ? 0.8 : 1.0;
+
+            const canvas = modifiedImage;
+            const mimeType = `image/${format}`;
+            const dataUrl = canvas.toDataURL(mimeType, quality);
+
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.style.display = 'inline-block';
+            downloadBtn.setAttribute('data-url', dataUrl);
+            downloadBtn.setAttribute('data-format', format);
+            setStatus('Image converted and compressed successfully.');
+        }
+
+        function downloadImage() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const dataUrl = downloadBtn.getAttribute('data-url');
+            const format = downloadBtn.getAttribute('data-format');
+            if (!dataUrl) return;
+
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `converted-image.${format}`;
+            link.click();
+        }
+
+        function setStatus(message) {
+            document.getElementById('status').textContent = message;
+            setTimeout(() => {
+                document.getElementById('status').textContent = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
