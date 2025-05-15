@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Crop Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #e6f0ff;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    #imageBox, #previewBox {
+      margin-top: 10px;
+      position: relative;
+    }
+    #imageCanvas, #previewCanvas {
+      width: 100%;
+      max-width: 100%;
+    }
+    .button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:disabled {
+      background-color: #cccccc;
+    }
+    @media (max-width: 600px) {
+      .container {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Image Crop Tool</h1>
+    <input type="file" id="upload" accept="image/*" />
+    <div id="imageBox">
+      <canvas id="imageCanvas"></canvas>
+    </div>
+    <button class="button" id="cropBtn" disabled>Crop Image</button>
+    <div id="previewBox">
+      <h3>Cropped Preview:</h3>
+      <canvas id="previewCanvas"></canvas>
+    </div>
+    <a class="button" id="downloadBtn" href="#" download="cropped.png" style="display:none">Download Cropped Image</a>
+  </div>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const imageCanvas = document.getElementById('imageCanvas');
+    const ctx = imageCanvas.getContext('2d');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const previewCtx = previewCanvas.getContext('2d');
+    const cropBtn = document.getElementById('cropBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let image = new Image();
+    let startX, startY, endX, endY;
+    let isDragging = false;
+
+    upload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        image.src = evt.target.result;
+      }
+      reader.readAsDataURL(file);
+    });
+
+    image.onload = function () {
+      imageCanvas.width = image.width;
+      imageCanvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+      cropBtn.disabled = false;
+    };
+
+    imageCanvas.addEventListener('mousedown', (e) => {
+      startX = e.offsetX;
+      startY = e.offsetY;
+      isDragging = true;
+    });
+
+    imageCanvas.addEventListener('mouseup', (e) => {
+      isDragging = false;
+      endX = e.offsetX;
+      endY = e.offsetY;
+    });
+
+    cropBtn.addEventListener('click', () => {
+      const x = Math.min(startX, endX);
+      const y = Math.min(startY, endY);
+      const width = Math.abs(endX - startX);
+      const height = Math.abs(endY - startY);
+
+      previewCanvas.width = width;
+      previewCanvas.height = height;
+
+      previewCtx.clearRect(0, 0, width, height);
+      previewCtx.drawImage(imageCanvas, x, y, width, height, 0, 0, width, height);
+
+      downloadBtn.href = previewCanvas.toDataURL();
+      downloadBtn.style.display = 'inline-block';
+    });
+  </script>
+</body>
+</html>
